@@ -1,0 +1,28 @@
+---
+title: "FinalProject"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+```
+```{r}
+tempo <- read_csv("https://raw.githubusercontent.com/SusaninJ/jour405_spring25/refs/heads/main/NCAA%20Tournament-KenPom%20-%20Sheet1.csv") |> clean_names()
+```
+```{r}
+tempo |> 
+  summarise(
+    mean = mean(tempo_rating),
+    sd = sd(tempo_rating)
+  )
+```
+This was done to get a baseline of what we're working with. The main takeaway I had from these numbers is that four of the five national champions had a tempo above the mean.
+
+```{r}
+tempo |> 
+  ggplot() +
+  geom_point(aes(x=tempo_rating, y = games_won))
+```
+
+I also wanted to visualize it through this scatterplot.
