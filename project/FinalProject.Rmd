@@ -26,3 +26,12 @@ tempo |>
 ```
 
 I also wanted to visualize it through this scatterplot.
+
+```{r}
+tempo_group <- tempo |> 
+  group_by(games_won) |> 
+ 
+  )
+```
+
+I am having trouble with the group_by code. I am trying to figure out years and seeds by tempo. Could you help me with that.
