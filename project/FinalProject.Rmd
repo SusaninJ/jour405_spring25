@@ -27,11 +27,81 @@ tempo |>
 
 I also wanted to visualize it through this scatterplot.
 
+
+
+```{r}
+# Summary statistics
+summary(tempo)
+
+# Create correlation matrix
+selected_vars <- tempo |> 
+  select(games_won, tempo_rating, tempo_ranking)
+correlation_matrix <- cor(selected_vars)
+print(correlation_matrix)
+
+
+
+# Create scatterplots
+tempo |>
+  pivot_longer(cols = c(tempo_rating, tempo_ranking),
+               names_to = "variable", 
+               values_to = "value") |>
+  ggplot(aes(x = value, y = games_won)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_wrap(~ variable, scales = "free_x") +
+  labs(title = "Relationship between tempo and winning games in March Madness",
+       y = "Games Won")
+```
+This was stolen from the regression exercises we did during class. I wanted to see if there was any correlation between tempo rating/ranking and games won. It didn't look like it from the raw data, but I wanted to confirm it with the data. With a correlation matrix of ).048 between tempo rating and games won, it looks clear that there is no correlation between those two points.
+```{r}
+tempo |> 
+  ggplot() +
+  geom_histogram(aes(x = tempo_rating), binwidth = 2) +
+  geom_vline(aes(xintercept = mean(tempo_rating)), color = "red", linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = mean(tempo_rating) - sd(tempo_rating)), color = "blue", linetype = "dashed", size = 1) +
+  geom_vline(aes(xintercept = mean(tempo_rating) + sd(tempo_rating)), color = "blue", linetype = "dashed", size = 1) 
+```
+This histogram was done after suggestion from the professor. I absolutely agree that this is a better way of visualizing tempo, as well as the mean and standard deviation of that data.
+
 ```{r}
 tempo_group <- tempo |> 
+  group_by(seed) |> 
+  summarize(tempo_mean =
+              mean(tempo_rating, na.rm = TRUE))
+```
+A-ha! I found something. When looking at the means of tempo rating for each seed, the top 3 seeds have the top 3 means (not in order but still noteworthy). This is something that can be used in a story. The important thing to know is that the numbers are all very close, however, it is the top 3 seeds that prevail.
+```{r}
+tempo_group_wins <- tempo |> 
   group_by(games_won) |> 
- 
-  )
+  summarize(tempo_mean =
+              mean(tempo_rating, na.rm = TRUE))
 ```
 
-I am having trouble with the group_by code. I am trying to figure out years and seeds by tempo. Could you help me with that.
+For games won, it is more all over the place. The top options are teams that won 3 games (Elite 8), 2 games (Sweet 16), and 5 games (lost in the national championship). However, teams that won the national championship and teams that lost in the first round are right in the middle.
+```{r}
+tempo_group |> 
+  ggplot() +
+  geom_histogram(aes(x=seed,y=tempo_mean),stat="identity") +
+  geom_hline(aes(yintercept = 67.36765),color = "red", linetype = "dashed", size = 1)
+```
+I had a bit of trouble with the histogram for seed and this is the best I could do. While I understand it is a bit tough to read, it hopefully shows that you can see the top 3 seeds being minimally above the rest. I also added a line to show what the overall mean is, which helps emphasize how high the 1,2, and 3 seeds are.
+
+```{r}
+tempo_group_wins |> 
+  ggplot() +
+  geom_histogram(aes(x=games_won,y=tempo_mean),stat="identity") +
+  geom_hline(aes(yintercept = 67.36765),color = "red", linetype = "dashed", size = 1)
+```
+Same thing here with games won. I again added the red line to show the mean. This visualizes what I saw when looking at the means for each number of games won.
+
+
+------ FINAL PITCH ------
+
+Tempo tempo tempo. Every March, college basketball coaches, analysts, and wannabe bracketologists talk about its importance. Some think playing slow is better, some think you have to speed it up. Luckily for college basketball statistics fans, there is a way to measure it through KenPom's tempo rating. It is calculated by looking at the number of possessions each team has per 40 minutes. Effectively, how quickly the team plays.
+
+But which way is better? After analyzing data for each team in the NCAA tournament since 2021, there is almost zero correlation either way between winning in March Madness and tempo rating. The correlation matrix for tempo rating and games won in the tournament is 0.0481506. This is confirmed by the mean tempo rating for each number of wins possible in the NCAA tournament. The highest average tempo is for teams that lost in the elite eight and sweet 16 respectively.
+
+However, playing fast could be important in the regular season. When looking at tempo for means for each seed, the top three seeds are the top 3 tempo means. So looking at that it can be said that playing fast helps you get a better seed in March Madness, meaning you might win in the regular season more.
+
+My headline for this story would be: Playing Fast Helps in the Regular Season but not so much in March Madness
